@@ -10,7 +10,7 @@ from typing import List, Optional
 
 
 class LedController:
-    GROUP_COUNT = 4
+    GROUP_COUNT = 4 # the number of LED groups defined by the STM32 controller
 
     def __init__(self) -> None:
         self._port = "/dev/tty.usbserial"  # default port

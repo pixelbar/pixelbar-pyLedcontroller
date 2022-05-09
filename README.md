@@ -45,8 +45,19 @@ python3 ledcontroller.py -port /dev/ttyUSB0 40a0
 ```
 Set all ledgroups to a mix of 25% cool white (provided by the RGB leds) and 60% warm white (provided by the white leds). Use port /dev/ttyUSB0 instead of the default port.
 
-
 ```
 python3 ledcontroller.py ff0000 00ff00 0000ff 000000ff
 ```
 Set the first group to red, the second group to green, the third group to blue and the fourth group to warm white. Note that the 4th value has 4 hex bytes, and the rgb led is turned off.
+
+## controller
+
+All this assumes a controller that receives color commands via serial, with the following packet-structure:
+
+* A start byte `0xFF`
+* For each of the 4 LED groups a series of 4 bytes, respectively R,G,B,W
+
+example-packet, resulting from `ledcontroller.py 8040`:
+```
+FF 80 80 80 40 80 80 80 40 80 80 80 40 80 80 80 40
+```
