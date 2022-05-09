@@ -24,7 +24,7 @@ class LedController:
             self._serial = serial.Serial()
         except NameError:
             print(
-                "pySerial module is not installed, so there is no connection with the controller. Try installing it with `python -m pip install pyserial`."
+                "pySerial module is not installed, so there is no connection with the controller. Try installing it with `python3 -m pip install pyserial`."
             )
             self._serial = None
 
