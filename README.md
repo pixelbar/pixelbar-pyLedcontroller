@@ -50,8 +50,22 @@ python3 ledcontroller.py ff0000 00ff00 0000ff 000000ff
 ```
 Set the first group to red, the second group to green, the third group to blue and the fourth group to warm white. Note that the 4th value has 4 hex bytes, and the rgb led is turned off.
 
-## controller
+## REST server
+A minimal REST server is provided as `ledcontroller-server.py`. It uses the LedController class also used for the command-line implementation above.
+To run it To use the minimal ledcontroller REST server (), the Flask module must be installed:
+```
+python3 -m pip install flask
+```
+The server has a `GET` and a `POST` endpoint on port 5000, both returning the latest colors sent to the controller through the server-script.
+To set the colors, use the POST endpoint with the following json data structure:
+```
+{
+	"colors": ["80a0", "ff", "ff", "ff0000"]
+}
+```
+All the same color formats as the command-line implementation are supported (1,2,3 or 4 HEX bytes).
 
+## controller
 All this assumes a controller that receives color commands via serial, with the following packet-structure:
 
 * A start byte `0xFF`
