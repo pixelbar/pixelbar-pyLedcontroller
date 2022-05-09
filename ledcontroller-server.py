@@ -10,16 +10,19 @@ app = Flask(__name__)
 @app.route('/', methods=['GET'])
 def showCurrentState():
     state_string = ledController.stateToString(ledController.getState())
-    state_hex_values = state_string.split(" ")
-    result = {"colors": state_hex_values}
+    result = {"colors": state_string.split(" ")}
     return jsonify(result)
 
 @app.route('/', methods=['POST'])
 def setState():
-    request_data = json.loads(request.data)
+    try:
+        request_data = json.loads(request.data)
+    except json.JSONDecodeError:
+        return ("no or malformed data supplied", 400)
+
     try:
         state_values = request_data["colors"]
-    except ValueError:
+    except KeyError:
         return ("no colors specified", 400)
 
     try:
