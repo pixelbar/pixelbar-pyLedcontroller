@@ -34,8 +34,8 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def showCurrentState():
-    state_string = ledController.stateToString(ledController.getState())
-    result = {"colors": state_string.split(" ")}
+    hex_colors = ledController.stateToHexColors(ledController.getState())
+    result = {"colors": hex_colors}
     return jsonify(result)
 
 @app.route('/', methods=['POST'])
@@ -46,12 +46,12 @@ def setState():
         return ("no or malformed data supplied", 400)
 
     try:
-        state_values = request_data["colors"]
+        hex_colors = request_data["colors"]
     except KeyError:
         return ("no colors specified", 400)
 
     try:
-        state = ledController.stateFromString(" ".join(state_values))
+        state = ledController.stateFromHexColors(hex_colors)
         ledController.setState(state)
     except Exception as e:
         return (str(e), 400)

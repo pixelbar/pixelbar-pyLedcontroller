@@ -17,7 +17,7 @@ class LedController:
 
         # the state that was most recently sent to the controller, provided that the class instance stays alive
         # defaults to 4x full bright because that's what the controller does when it is powered on
-        self._state = self.stateFromString("ff")
+        self._state = self.stateFromHexColors(["ff"])
 
         try:
             self._serial = serial.Serial()
@@ -73,42 +73,42 @@ class LedController:
     def getState(self) -> List[bytes]:
         return self._state
 
-    def stateFromString(self, state_string: str) -> List[bytes]:
-        values = state_string.split(" ")
-        if len(values) == 1:
+    def parseHexColor(self, hex_color: str) -> bytes:
+        hex_bytes = bytes.fromhex(hex_color)
+        hex_length = len(hex_bytes)
+        if hex_length == 1:
+            # RGB and W all equal value
+            # input: 0x88 output: 0x88888888
+            hex_bytes = hex_bytes * 4
+        elif hex_length == 2:
+            # RGB all equal, W separate value
+            # input: 0x8844 output: 0x88888840
+            hex_bytes = hex_bytes[0:1] * 3 + hex_bytes[1:2]
+        elif hex_length == 3:
+            # RGB only, turn off W
+            # input: 0x884422 output: 0x88442200
+            hex_bytes = hex_bytes + b"\x00"
+        elif hex_length == 4:
+            # RGBW as is
+            # input: 0x88442211 output: 0x88442211
+            pass
+        else:
+            raise ValueError("only 4 hex bytes are expected per value")
+
+        return hex_bytes
+
+
+    def stateFromHexColors(self, hex_colors: List[str]) -> List[bytes]:
+        if len(hex_colors) == 1:
             # use same value for all groups
-            values = values * self.GROUP_COUNT
-        if len(values) != self.GROUP_COUNT:
+            hex_colors = hex_colors * self.GROUP_COUNT
+        if len(hex_colors) != self.GROUP_COUNT:
             raise ValueError("only %d or 1 values may be specified" % self.GROUP_COUNT)
 
-        result = []
-        for value in values:
-            value_bytes = bytes.fromhex(value)
-            value_lenght = len(value_bytes)
-            if value_lenght == 1:
-                # RGB and W all equal value
-                # input: 0x88 output: 0x88888888
-                value_bytes = value_bytes * 4
-            elif value_lenght == 2:
-                # RGB all equal, W separate value
-                # input: 0x8844 output: 0x88888840
-                value_bytes = value_bytes[0:1] * 3 + value_bytes[1:2]
-            elif value_lenght == 3:
-                # RGB only, turn off W
-                # input: 0x884422 output: 0x88442200
-                value_bytes = value_bytes + b"\x00"
-            elif value_lenght == 4:
-                # RGBW as is
-                # input: 0x88442211 output: 0x88442211
-                pass
-            else:
-                raise ValueError("only 4 hex bytes are expected per value")
-            result.append(value_bytes)
+        return [self.parseHexColor(value) for value in hex_colors]
 
-        return result
-
-    def stateToString(self, state: List[bytes]) -> str:
-        return " ".join([l.hex() for l in state])
+    def stateToHexColors(self, state: List[bytes]) -> List[str]:
+        return [value.hex() for value in state]
 
 
 if __name__ == "__main__":
@@ -144,6 +144,6 @@ if __name__ == "__main__":
     if args.device or args.baud:
         ledController.setSerialOptions(device=args.device, baudrate=args.baud)
     if args.colors:
-        ledController.setState(ledController.stateFromString(" ".join(args.colors)))
+        ledController.setState(ledController.stateFromHexColors(args.colors))
 
-    print("Current colors: %s" % ledController.stateToString(ledController.getState()))
+    print("Current colors: %s" % " ".join(ledController.stateToHexColors(ledController.getState())))
