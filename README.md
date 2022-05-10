@@ -55,7 +55,7 @@ A minimal REST server is also provided. It uses the LedController class also use
 ```
 python3 ledcontroller-server.py [-h] [--port PORT] [--device DEVICE] [--baud BAUD]
 ```
-To run it To use the minimal ledcontroller REST server (), the Flask module must be installed:
+To run it the Flask module must be installed:
 ```
 python3 -m pip install flask
 ```
@@ -66,7 +66,7 @@ To set the colors, use the POST endpoint with the following json data structure:
 	"colors": ["80a0", "ff", "ff", "ff0000"]
 }
 ```
-All the same color formats as the command-line implementation are supported (1,2,3 or 4 HEX bytes).
+All the same color formats as the command-line implementation are supported (1,2,3 or 4 HEX bytes), and either 1 or 4 colors must be specified.
 
 ## controller
 All this assumes a controller that receives color commands via serial, with the following packet-structure:
@@ -78,3 +78,5 @@ example-packet, resulting from `ledcontroller.py 8040`:
 ```
 FF 80 80 80 40 80 80 80 40 80 80 80 40 80 80 80 40
 ```
+The (partial?) rust source for the pixelbar controller running on an STM32 board can be found here:
+https://github.com/pixelbar/led_controller
