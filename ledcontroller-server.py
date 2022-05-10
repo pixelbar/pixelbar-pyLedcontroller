@@ -2,9 +2,34 @@
 
 from ledcontroller import LedController
 from flask import Flask, request, jsonify
+import argparse
 import json
 
+parser = argparse.ArgumentParser(
+    description="Minimal REST server to adjust the RGBW lighting at the pixelbar."
+)
+parser.add_argument(
+    "--port",
+    type=int,
+    default=5000,
+    help="the port the server listens to, defaults to 5000"
+)
+parser.add_argument(
+    "--device",
+    type=str,
+    help="the serial device to connect with, defaults to /dev/tty.usbserial",
+)
+parser.add_argument(
+    "--baud",
+    type=int,
+    help="the serial communication speed, defaults to 9600"
+)
+args = parser.parse_args()
+
 ledController = LedController()
+if args.device or args.baud:
+    ledController.setSerialOptions(device=args.device, baudrate=args.baud)
+
 app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
@@ -33,4 +58,4 @@ def setState():
 
     return showCurrentState()
 
-app.run(debug=True)
+app.run(port=args.port, debug=True)

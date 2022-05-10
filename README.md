@@ -51,7 +51,10 @@ python3 ledcontroller.py ff0000 00ff00 0000ff 000000ff
 Set the first group to red, the second group to green, the third group to blue and the fourth group to warm white. Note that the 4th value has 4 hex bytes, and the rgb led is turned off.
 
 ## REST server
-A minimal REST server is provided as `ledcontroller-server.py`. It uses the LedController class also used for the command-line implementation above.
+A minimal REST server is also provided. It uses the LedController class also used for the command-line implementation above.
+```
+python3 ledcontroller-server.py [-h] [--port PORT] [--device DEVICE] [--baud BAUD]
+```
 To run it To use the minimal ledcontroller REST server (), the Flask module must be installed:
 ```
 python3 -m pip install flask
