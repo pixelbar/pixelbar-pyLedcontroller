@@ -66,7 +66,18 @@ To set the colors, use the POST endpoint with the following json data structure:
 	"colors": ["80a0", "ff", "ff", "ff0000"]
 }
 ```
+The server also has a `PATCH` endpoint, which allows setting individual led groups wihtout having to specify the others:
+```
+{
+  "0": "a040",
+  "2": "102030"
+}
+```
+NB: LED group numbers start with 0 and must be strings.
+
 All the same color formats as the command-line implementation are supported (1,2,3 or 4 HEX bytes), and either 1 or 4 colors must be specified.
+
+When successful, the `POST` and `PATCH` endpoints return the same output as the `GET` endpoint, updated with the new colors.
 
 ## controller
 All this assumes a controller that receives color commands via serial, with the following packet-structure:

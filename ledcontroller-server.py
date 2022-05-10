@@ -58,4 +58,22 @@ def setState():
 
     return showCurrentState()
 
+@app.route('/', methods=['PATCH'])
+def setPartialState():
+    try:
+        request_data = json.loads(request.data)
+    except json.JSONDecodeError:
+        return ("no or malformed data supplied", 400)
+
+    state = ledController.getState()
+    for i in range(0, ledController.GROUP_COUNT):
+        try:
+            if str(i) in request_data:
+                state[i] = ledController.parseHexColor(request_data[str(i)])
+        except Exception as e:
+            return (str(e), 400)
+
+    ledController.setState(state)
+    return showCurrentState()
+
 app.run(port=args.port, debug=True)
