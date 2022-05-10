@@ -6,14 +6,14 @@ The script uses pySerial to communicate with the STM32 controller board. This ca
 ```
 python3 -m pip install pyserial
 ```
-The user must be privileged to use serial ports. As a better alternative than to run the command as root, add the user to the `dialout` group:
+The user must be privileged to use serial devices. As a better alternative than to run the command as root, add the user to the `dialout` group:
 ```
 sudo adduser $USER dialout
 ```
 
 ## usage
 ```
-python3 ledcontroller.py [-h] [--port PORT] [--baud BAUD] color [color ...]
+python3 ledcontroller.py [-h] [--device DEVICE] [--baud BAUD] color [color ...]
 ```
 
 Adjust the RGBW lighting at the pixelbar.
@@ -23,7 +23,7 @@ positional arguments:
 
 options:
   -h, --help   show this help message and exit
-  --port PORT  the serial port to connect with, defaults to /dev/tty.usbserial
+  --device DEVICE  the serial device to connect with, defaults to /dev/tty.usbserial
   --baud BAUD  the serial communication speed, defaults to 9600
 
 Either 1 or 4 colors can be specified. If 1 color is specified, the same color is used for all 4 groups.
@@ -41,9 +41,9 @@ python3 ledcontroller.py 7f
 Set all ledgroups to half-brightness RGB and W.
 
 ```
-python3 ledcontroller.py -port /dev/ttyUSB0 40a0
+python3 ledcontroller.py --device /dev/ttyUSB0 40a0
 ```
-Set all ledgroups to a mix of 25% cool white (provided by the RGB leds) and 60% warm white (provided by the white leds). Use port /dev/ttyUSB0 instead of the default port.
+Set all ledgroups to a mix of 25% cool white (provided by the RGB leds) and 60% warm white (provided by the white leds). Use device /dev/ttyUSB0 instead of the default device.
 
 ```
 python3 ledcontroller.py ff0000 00ff00 0000ff 000000ff
@@ -56,7 +56,7 @@ To run it To use the minimal ledcontroller REST server (), the Flask module must
 ```
 python3 -m pip install flask
 ```
-The server has a `GET` and a `POST` endpoint on port 5000, both returning the latest colors sent to the controller through the server-script.
+The server has a `GET` and a `POST` endpoint on device 5000, both returning the latest colors sent to the controller through the server-script.
 To set the colors, use the POST endpoint with the following json data structure:
 ```
 {

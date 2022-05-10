@@ -4,7 +4,6 @@ try:
     import serial
 except ModuleNotFoundError:
     pass
-import re
 import argparse
 from typing import List, Optional
 
@@ -13,7 +12,7 @@ class LedController:
     GROUP_COUNT = 4 # the number of LED groups defined by the STM32 controller
 
     def __init__(self) -> None:
-        self._port = "/dev/tty.usbserial"  # default port
+        self._device = "/dev/tty.usbserial"  # default device
         self._baudrate = 9600  # default baudrate
 
         # the state that was most recently sent to the controller, provided that the class instance stays alive
@@ -28,28 +27,28 @@ class LedController:
             )
             self._serial = None
 
-    def setSerialOptions(self, port: Optional[str], baudrate: Optional[int]) -> None:
+    def setSerialOptions(self, device: Optional[str], baudrate: Optional[int]) -> None:
         if not self._serial:  # in case pyserial is not available
             return
 
         if self._serial.is_open:
-            raise Exception("serial port is already open")
+            raise Exception("serial device is already open")
             return
 
-        if port:
-            self._port = port
+        if device:
+            self._device = device
         if baudrate:
             self._baudrate = baudrate
 
-    def openPort(self) -> None:
+    def openDevice(self) -> None:
         if not self._serial:  # in case pyserial is not available
             return
 
-        self._serial.port = self._port
+        self._serial.port = self._device
         self._serial.baud = self._baudrate
-        self._serial.open()  # this may throw its own exception if there's an error opening the port
+        self._serial.open()  # this may throw its own exception if there's an error opening the device
 
-    def closePort(self) -> None:
+    def closeDevice(self) -> None:
         if not self._serial:  # in case pyserial is not available
             return
 
@@ -61,12 +60,12 @@ class LedController:
             raise ValueError("new state is invalidly defined")
 
         if self._serial and not self._serial.is_open:
-            self.openPort()
+            self.openDevice()
 
         self._state = state
 
         if self._serial:
-            # this may throw its own exception if there's an error writing to the serial port
+            # this may throw its own exception if there's an error writing to the serial device
             self._serial.write(255)  # 'start byte', mandated by the controller
             for value in self._state:
                 self._serial.write(self._state[value])
@@ -123,9 +122,9 @@ if __name__ == "__main__":
             "4 bytes will used for R, G, B, W as is."
     )
     parser.add_argument(
-        "--port",
+        "--device",
         type=str,
-        help="the serial port to connect with, defaults to /dev/tty.usbserial",
+        help="the serial device to connect with, defaults to /dev/tty.usbserial",
     )
     parser.add_argument(
         "--baud",
@@ -142,8 +141,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     ledController = LedController()
-    if args.port or args.baud:
-        ledController.setSerialOptions(port=args.port, baudrate=args.baud)
+    if args.device or args.baud:
+        ledController.setSerialOptions(device=args.device, baudrate=args.baud)
     if args.colors:
         ledController.setState(ledController.stateFromString(" ".join(args.colors)))
 
