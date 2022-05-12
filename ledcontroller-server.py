@@ -76,4 +76,4 @@ def setPartialState():
     ledController.setState(state)
     return showCurrentState()
 
-app.run(port=args.port)
+app.run(host="0.0.0.0", port=args.port)
