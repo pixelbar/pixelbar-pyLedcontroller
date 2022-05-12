@@ -19,13 +19,17 @@ app = Flask(__name__)
 @app.route('/api/serial', methods=['GET'])
 def showCurrentState():
     state = ledController.getState()
-    # zip and comprehension magic to transmogrify state to what PixelLight.py wants
+    # convert from bytes (0-255) into ints (0-100)
     color_values = [
-        [dict(zip(colors, [int(100*value/255) for value in group])) for group in state]
+        [int(100 * value / 255) for value in group] for group in state
     ]
-    result = dict(zip(groups, zip(*color_values)))
-    # unfortunately we created one too many lists
-    result = {k:v[0] for (k,v) in result.items()}
+
+    # convert from nested list to nested named dict
+    result = {
+        group: {
+            color: color_value for (color, color_value) in zip(colors, group_values)
+        } for (group, group_values) in zip(groups, color_values)
+    }
 
     return jsonify(result)
 
@@ -48,10 +52,11 @@ def setState():
                 value = values[color]
             except KeyError:
                 return ("no %s value specified for group %s" % (color, group), 400)
+            if value < 0 or value > 255:
+                return ("illegal value %s specified for color %s in group %s" % (str(value), color, group))
 
             group_state = group_state + int(255 * value / 100).to_bytes(1, "big")
         state.append(group_state)
-    print(state)
 
     try:
         ledController.setState(state)
