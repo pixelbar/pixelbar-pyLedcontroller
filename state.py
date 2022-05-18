@@ -14,14 +14,25 @@ class GroupState:
         for group, values in zip(self.groups, byte_vals):
             group.from_bytes(values)
 
+    def set_all_groups_hex(self, hex_vals: list[str]):
+        assert len(self.groups) == len(
+            hex_vals
+        ), f"Numer of bytes to set ({len(hex_vals)}) needs to match number of groups ({len(self.groups)})"
+
+        for group, values in zip(self.groups, hex_vals):
+            group.from_hex(values)
+
     def set_group(self, group: int, byte_vals: bytes):
         assert group >= 0, "whats a negative group?"
         assert group < self.GROUP_COUNT, "too big group"
         self.groups[group].set_rgbw(byte_vals)
 
+    def get_all_states(self) -> list[bytes]:
+        return [state.byte_repr() for state in self.groups]
+
     def send_format(self) -> bytes:
 
-        states = [state.byte_repr() for state in self.groups]
+        states = self.get_all_states()
         # prepend state with is single FF "startbyte"
         return b"\xff" + b"".join(states)
 
