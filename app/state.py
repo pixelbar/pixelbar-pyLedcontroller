@@ -27,11 +27,13 @@ class GroupState:
         assert group < self.GROUP_COUNT, "too big group"
         self.groups[group].set_rgbw(byte_vals)
 
+    def get_hex_states(self) -> list[str]:
+        return [state.hex_repr() for state in self.groups]
+
     def get_all_states(self) -> list[bytes]:
         return [state.byte_repr() for state in self.groups]
 
     def send_format(self) -> bytes:
-
         states = self.get_all_states()
         # prepend state with is single FF "startbyte"
         return b"\xff" + b"".join(states)
@@ -75,8 +77,8 @@ class LedState:
     def byte_repr(self) -> bytes:
         return self.byte_vals
 
-    def to_hex(self) -> list[str]:
-        return [hex(a) for a in self.byte_vals]
+    def hex_repr(self) -> str:
+        return self.byte_vals.hex()
 
     def set_rgbw(self, byte_values: bytes):
         assert len(byte_values) == 4
