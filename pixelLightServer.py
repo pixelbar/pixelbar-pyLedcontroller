@@ -6,7 +6,9 @@ import argparse
 import json
 
 """
-The PixelLight touchscreen interface communicates with a server on 172.30.101.101:1234
+The PixelLight touchscreen interface communicates with a server on 127.0.0.1:1234
+The STM32 controller driving the LED strips is connected on /dev/ttyACM0, and is
+communicating at 9600 baud
 
 GET /api/serial to get the last sent values
 POST /api/set to set new values
