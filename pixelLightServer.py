@@ -5,6 +5,21 @@ from flask import Flask, request, jsonify
 import argparse
 import json
 
+"""
+The PixelLight touchscreen interface communicates with a server on 172.30.101.101:1234
+
+GET /api/serial to get the last sent values
+POST /api/set to set new values
+
+data structure:
+{
+    "door": {"red": 100, "green": 50, "blue": 25, "white": 0}
+    "kitchen": {"red": 50, "green": 25, "blue": 0, "white": 100}
+    "stairs": {"red": 100, "green": 100, "blue": 100, "white": 0}
+    "beamer": {"red": 0, "green": 0, "blue": 0, "white": 100}
+}
+"""
+
 device = "/dev/ttyACM0"
 baudrate = 9600
 port = 1234
@@ -65,4 +80,4 @@ def setState():
 
     return showCurrentState()
 
-app.run(host="0.0.0.0", port=port, debug=True)
+app.run(host="0.0.0.0", port=port, debug=False)
