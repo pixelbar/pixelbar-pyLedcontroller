@@ -23,7 +23,7 @@ data structure:
 device = "/dev/ttyACM0"
 baudrate = 9600
 port = 1234
-groups = ["door", "kitchen", "stairs", "beamer"]
+groups = ["beamer", "door", "stairs", "kitchen"]
 colors = ["red", "green", "blue", "white"]
 
 ledController = LedController()
