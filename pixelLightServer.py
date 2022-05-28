@@ -51,7 +51,7 @@ def showCurrentState():
 @app.route('/api/set', methods=['POST'])
 def setState():
     try:
-        request_data = json.loads(request.data)
+        request_data = json.loads(request.data.decode())
     except json.JSONDecodeError:
         return ("no or malformed data supplied", 400)
 
