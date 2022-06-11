@@ -79,9 +79,8 @@ def setState():
                 value = values[color]
             except KeyError:
                 return ("no %s value specified for group %s" % (color, group), 400)
-            if value < 0 or value > 255:
+            if value < 0 or value > 100:
                 return ("illegal value %s specified for color %s in group %s" % (str(value), color, group))
-
             group_state = group_state + int(255 * value / 100).to_bytes(1, "big")
         state.append(group_state)
 
