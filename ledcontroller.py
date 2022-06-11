@@ -20,7 +20,7 @@ class LedController:
         self._state = self.stateFromHexColors(["ff"])
 
         try:
-            self._serial = serial.Serial(write_timeout=5)
+            self._serial = serial.Serial(timeout=0, write_timeout=1)
         except NameError:
             print(
                 "pySerial module is not installed, so there is no connection with the controller. Try installing it with `python3 -m pip install pyserial`."
@@ -52,6 +52,9 @@ class LedController:
         if not self._serial:  # in case pyserial is not available
             return
 
+        # flush any pending incoming data
+        self._serial.reset_input_buffer()
+
         if self._serial.is_open:
             self._serial.close()
 
@@ -69,6 +72,10 @@ class LedController:
             buffer = b'\xff'+ b''.join(self._state)
             # this may throw its own exception if there's an error writing to the serial device
             self._serial.write(buffer)
+
+            # get and ignore response
+            result = self._serial.read()
+
 
     def getState(self) -> List[bytes]:
         return self._state
