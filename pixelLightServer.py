@@ -4,6 +4,7 @@ from ledcontroller import LedController
 from flask import Flask, request, jsonify
 import argparse
 import json
+import os.path
 
 """
 The PixelLight touchscreen interface communicates with a server on 127.0.0.1:1234
@@ -22,7 +23,16 @@ data structure:
 }
 """
 
-device = "/dev/ttyACM0"
+device = ""
+for i in range(0,9):
+    device_path = "/dev/ttyACM%d" % i
+    if os.path.exists(device_path):
+        device = device_path
+        break
+if device == "":
+    print("No ttyACM device found; is the STM32 board connected?")
+    exit(1)
+
 baudrate = 9600
 port = 1234
 groups = ["beamer", "door", "stairs", "kitchen"]
