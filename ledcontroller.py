@@ -6,7 +6,7 @@ except ModuleNotFoundError:
     pass
 import argparse
 from typing import List, Optional
-
+from threading import Lock
 
 class LedController:
     GROUP_COUNT = 4 # the number of LED groups defined by the STM32 controller
@@ -19,6 +19,9 @@ class LedController:
         # defaults to 4x full bright because that's what the controller does when it is powered on
         self._state = self.stateFromHexColors(["ff"])
 
+        # a threading lock is set around serial operations, in case calls are made from threads
+        self._lock = Lock()
+
         try:
             self._serial = serial.Serial(timeout=0, write_timeout=1)
         except NameError:
@@ -26,6 +29,17 @@ class LedController:
                 "pySerial module is not installed, so there is no connection with the controller. Try installing it with `python3 -m pip install pyserial`."
             )
             self._serial = None
+
+    def update(self) -> None:
+        # it is up to the user of this class to periodocally call this `update` method
+
+        if note self._serial or not self._serial.is_open:
+            return
+
+        # flush any pending incoming data
+        self._lock.acquire() # make sure this does not happen while another thread is sending data
+        self._serial.reset_input_buffer()
+        self._lock.release()
 
     def setSerialOptions(self, device: Optional[str], baudrate: Optional[int]) -> None:
         if not self._serial:  # in case pyserial is not available
@@ -62,6 +76,8 @@ class LedController:
         if len(state) != self.GROUP_COUNT or not all([len(v) == 4 for v in state]):
             raise ValueError("new state is invalidly defined")
 
+        self._lock.acquire()
+
         if self._serial and not self._serial.is_open:
             self.openDevice()
 
@@ -74,8 +90,9 @@ class LedController:
             self._serial.write(buffer)
 
             # get and ignore response
-            result = self._serial.read()
+            self._serial.reset_input_buffer()
 
+        self._lock.release()
 
     def getState(self) -> List[bytes]:
         return self._state
