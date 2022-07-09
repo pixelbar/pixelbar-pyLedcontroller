@@ -4,6 +4,7 @@ from ledcontroller import LedController
 from flask import Flask, request, jsonify
 import argparse
 import json
+from threading import Thread
 
 parser = argparse.ArgumentParser(
     description="Minimal REST server to adjust the RGBW lighting at the pixelbar."
@@ -75,5 +76,12 @@ def setPartialState():
 
     ledController.setState(state)
     return showCurrentState()
+
+def updateLedController():
+    ledController.update()
+    sleep(5)
+
+updateThread = threading.Thread(target=thread_function, daemon=True)
+updateThread.start()
 
 app.run(host="0.0.0.0", port=args.port)

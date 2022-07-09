@@ -2,6 +2,7 @@
 
 from ledcontroller import LedController
 from flask import Flask, request, jsonify
+from threading import Thread
 import argparse
 import json
 import os.path
@@ -90,5 +91,12 @@ def setState():
         return (str(e), 400)
 
     return showCurrentState()
+
+def updateLedController():
+    ledController.update()
+    sleep(5)
+
+updateThread = threading.Thread(target=thread_function, daemon=True)
+updateThread.start()
 
 app.run(host="0.0.0.0", port=port, debug=False)
