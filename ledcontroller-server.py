@@ -4,6 +4,7 @@ from ledcontroller import LedController
 from flask import Flask, request, jsonify
 import argparse
 import json
+import time
 from threading import Thread
 
 parser = argparse.ArgumentParser(
@@ -55,6 +56,7 @@ def setState():
         state = ledController.stateFromHexColors(hex_colors)
         ledController.setState(state)
     except Exception as e:
+        print(e)
         return (str(e), 400)
 
     return showCurrentState()
@@ -78,10 +80,13 @@ def setPartialState():
     return showCurrentState()
 
 def updateLedController():
-    ledController.update()
-    sleep(5)
+    while not stopThread:
+        ledController.update()
+        time.sleep(5)
 
-updateThread = threading.Thread(target=thread_function, daemon=True)
+stopThread = False
+updateThread = Thread(target=updateLedController, daemon=True)
 updateThread.start()
 
 app.run(host="0.0.0.0", port=args.port)
+stopThread = True

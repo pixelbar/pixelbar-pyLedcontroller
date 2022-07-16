@@ -3,6 +3,7 @@
 from ledcontroller import LedController
 from flask import Flask, request, jsonify
 from threading import Thread
+import time
 import argparse
 import json
 import os.path
@@ -88,15 +89,20 @@ def setState():
     try:
         ledController.setState(state)
     except Exception as e:
+        print(e)
         return (str(e), 400)
 
     return showCurrentState()
 
 def updateLedController():
-    ledController.update()
-    sleep(5)
+    while not closeThread:
+        ledController.update()
+        time.sleep(5)
 
-updateThread = threading.Thread(target=thread_function, daemon=True)
+updateThread = Thread(target=updateLedController, daemon=True)
+closeThread = False
 updateThread.start()
 
+
 app.run(host="0.0.0.0", port=port, debug=False)
+closeThread = True
