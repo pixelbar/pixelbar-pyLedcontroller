@@ -32,13 +32,12 @@ class LedController:
 
     def update(self) -> None:
         # it is up to the user of this class to periodocally call this `update` method
-
-        if note self._serial or not self._serial.is_open:
+        if not self._serial or not self._serial.is_open:
             return
 
         # flush any pending incoming data
         self._lock.acquire() # make sure this does not happen while another thread is sending data
-        self._serial.reset_input_buffer()
+        self._flushIncomingData()
         self._lock.release()
 
     def setSerialOptions(self, device: Optional[str], baudrate: Optional[int]) -> None:
@@ -90,7 +89,7 @@ class LedController:
             self._serial.write(buffer)
 
             # get and ignore response
-            self._serial.reset_input_buffer()
+            self._flushIncomingData()
 
         self._lock.release()
 
@@ -133,6 +132,14 @@ class LedController:
 
     def stateToHexColors(self, state: List[bytes]) -> List[str]:
         return [value.hex() for value in state]
+
+    def _flushIncomingData(self) -> None:
+        incoming = b""
+        while self._serial.in_waiting:
+            incoming += self._serial.read()
+        if incoming != b"":
+            print("Incoming data from controller: " + repr(incoming))
+
 
 
 if __name__ == "__main__":
