@@ -45,7 +45,7 @@ ledController.setSerialOptions(device=device, baudrate=baudrate)
 
 app = Flask(__name__)
 
-@app.route('/api/serial', methods=['GET'])
+@app.route('/api/v1/get', methods=['GET'])
 def showCurrentState():
     state = ledController.getState()
     # convert from bytes (0-255) into ints (0-100)
@@ -62,7 +62,7 @@ def showCurrentState():
 
     return jsonify(result)
 
-@app.route('/api/set', methods=['POST'])
+@app.route('/api/v1/set', methods=['POST'])
 def setState():
     try:
         request_data = json.loads(request.data.decode())
