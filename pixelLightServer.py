@@ -13,8 +13,8 @@ The PixelLight touchscreen interface communicates with a server on 127.0.0.1:123
 The STM32 controller driving the LED strips is connected on /dev/ttyACM0, and is
 communicating at 9600 baud
 
-GET /api/serial to get the last sent values
-POST /api/set to set new values
+GET /api/v1/get to get the last sent values
+POST /api/v1/set to set new values
 
 data structure:
 {
@@ -46,7 +46,7 @@ ledController.setSerialOptions(device=device, baudrate=baudrate)
 app = Flask(__name__)
 
 @app.route('/api/v1/get', methods=['GET'])
-def showCurrentState():
+def showCurrentStateV1():
     state = ledController.getState()
     # convert from bytes (0-255) into ints (0-100)
     color_values = [
@@ -63,7 +63,7 @@ def showCurrentState():
     return jsonify(result)
 
 @app.route('/api/v1/set', methods=['POST'])
-def setState():
+def setStateV1():
     try:
         request_data = json.loads(request.data.decode())
     except json.JSONDecodeError:
@@ -92,7 +92,36 @@ def setState():
         print(e)
         return (str(e), 400)
 
-    return showCurrentState()
+    return showCurrentStateV1()
+
+@app.route('/api/v2/', methods=['GET'])
+def showCurrentStateV2():
+    hex_colors = ledController.stateToHexColors(ledController.getState())
+    result = {"colors": hex_colors}
+    return jsonify(result)
+
+
+@app.route('/api/v2', methods=['POST'])
+def setStateV2():
+    try:
+        request_data = json.loads(request.data)
+    except json.JSONDecodeError:
+        return ("no or malformed data supplied", 400)
+
+    try:
+        hex_colors = request_data["colors"]
+    except KeyError:
+        return ("no colors specified", 400)
+
+    try:
+        state = ledController.stateFromHexColors(hex_colors)
+        ledController.setState(state)
+    except Exception as e:
+        print(e)
+        return (str(e), 400)
+
+    return showCurrentStateV2()
+
 
 def updateLedController():
     while not closeThread:
