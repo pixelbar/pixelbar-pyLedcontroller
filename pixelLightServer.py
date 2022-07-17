@@ -23,7 +23,22 @@ data structure:
     "stairs": {"red": 100, "green": 100, "blue": 100, "white": 0}
     "beamer": {"red": 0, "green": 0, "blue": 0, "white": 100}
 }
+
+The new PixelDash interface uses a more compact "v2" API on 127.0.0.1:1234
+
+GET /api/v2 to get the last sent values
+POST /api/v2 to set new values
+
+data structure:
+{
+    "colors": [
+        "000000ff", "ff7f3f00", "ffffff00", "7f3f00ff"
+    ]
+}
+The inherent order of the light groups in the v2 API is determined by the light
+controller hardware: beamer, door, stairs, kitchen
 """
+
 
 device = ""
 for i in range(0,9):
@@ -94,7 +109,7 @@ def setStateV1():
 
     return showCurrentStateV1()
 
-@app.route('/api/v2/', methods=['GET'])
+@app.route('/api/v2', methods=['GET'])
 def showCurrentStateV2():
     hex_colors = ledController.stateToHexColors(ledController.getState())
     result = {"colors": hex_colors}
