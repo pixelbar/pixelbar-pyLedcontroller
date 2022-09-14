@@ -10,6 +10,7 @@ from threading import Lock
 
 class LedController:
     GROUP_COUNT = 4 # the number of LED groups defined by the STM32 controller
+    GAMMA = 2.8 # gamma correction factor for the LED strips for better color rendition
 
     def __init__(self) -> None:
         self._device = "/dev/tty.usbserial"  # default device
@@ -82,9 +83,13 @@ class LedController:
 
         self._state = state
 
+        # Gamma-correct the values sent to the controller
+        # NB: the controller expects byte values from 0-100 instead of 0-255, for reasons
+        corrected_state = [bytes([int(pow(value/255, self.GAMMA) * 100) for value in group]) for group in state]
+
         if self._serial:
             # prepend state with is single FF "startbyte"
-            buffer = b'\xff'+ b''.join(self._state)
+            buffer = b'\xff'+ b''.join(corrected_state)
             # this may throw its own exception if there's an error writing to the serial device
             self._serial.write(buffer)
 
